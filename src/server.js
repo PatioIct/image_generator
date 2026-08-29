@@ -25,42 +25,24 @@ const __dirname = path.dirname(__filename);
 const WIDGET_URI =
   "ui://ac-fashion-studio/ac-fashion-studio-v1-1-1.html";
 
+const LEGACY_WIDGET_URI =
+  "ui://ac-fashion-studio/ac-fashion-studio.html";
+
 const widgetHtml = readFileSync(
   path.join(__dirname, "..", "public", "widget.html"),
   "utf8"
 );
 
 
-const IMAGE_TYPES = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-]);
-
-const MAX_IMAGE_BYTES =
-  20 * 1024 * 1024;
-
-
-/* =========================================================
-   CREATE MCP SERVER
-   ========================================================= */
-
-function createServer() {
-
-  const server = new McpServer({
-    name: "AC Fashion Image Studio",
-    version: "1.1.1",
-  });
-
-
-  /* =======================================================
-     REGISTER THE INTERACTIVE AC FASHION STUDIO UI
-     ======================================================= */
+function registerFashionStudioResource(
+  server,
+  uri
+) {
 
   registerAppResource(
     server,
     "AC Fashion Image Studio",
-    WIDGET_URI,
+    uri,
     {
       mimeType: RESOURCE_MIME_TYPE,
 
@@ -72,7 +54,7 @@ function createServer() {
 
       contents: [
         {
-          uri: WIDGET_URI,
+          uri,
 
           mimeType: RESOURCE_MIME_TYPE,
 
@@ -112,6 +94,44 @@ function createServer() {
         },
       ],
     })
+  );
+}
+
+
+const IMAGE_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
+
+const MAX_IMAGE_BYTES =
+  20 * 1024 * 1024;
+
+
+/* =========================================================
+   CREATE MCP SERVER
+   ========================================================= */
+
+function createServer() {
+
+  const server = new McpServer({
+    name: "AC Fashion Image Studio",
+    version: "1.1.1",
+  });
+
+
+  /* =======================================================
+     REGISTER THE INTERACTIVE AC FASHION STUDIO UI
+     ======================================================= */
+
+  registerFashionStudioResource(
+    server,
+    WIDGET_URI
+  );
+
+  registerFashionStudioResource(
+    server,
+    LEGACY_WIDGET_URI
   );
 
 
