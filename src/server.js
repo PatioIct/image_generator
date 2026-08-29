@@ -23,7 +23,7 @@ const __dirname = path.dirname(__filename);
    ========================================================= */
 
 const WIDGET_URI =
-  "ui://ac-fashion-studio/ac-fashion-studio.html";
+  "ui://ac-fashion-studio/ac-fashion-studio-v1-1-1.html";
 
 const widgetHtml = readFileSync(
   path.join(__dirname, "..", "public", "widget.html"),
@@ -49,7 +49,7 @@ function createServer() {
 
   const server = new McpServer({
     name: "AC Fashion Image Studio",
-    version: "1.1.0",
+    version: "1.1.1",
   });
 
 
@@ -733,7 +733,7 @@ app.get(
           "AC Fashion Image Studio",
 
         version:
-          "1.1.0",
+          "1.1.1",
       });
   }
 );
