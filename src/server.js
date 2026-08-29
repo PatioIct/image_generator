@@ -240,13 +240,13 @@ function createServer() {
         z.string().min(1),
 
       download_url:
-        z.string().optional().default(""),
-
-      filename:
         z.string().min(1),
+
+      file_name:
+        z.string().optional().default("garment-reference"),
 
       mime_type:
-        z.string().min(1),
+        z.string().optional().default("image/jpeg"),
     });
 
 
@@ -403,11 +403,13 @@ function createServer() {
           file_id:
             input.garment_reference.file_id,
 
-          filename:
-            input.garment_reference.filename,
+          file_name:
+            input.garment_reference.file_name ||
+            "garment-reference",
 
           mime_type:
-            input.garment_reference.mime_type,
+            input.garment_reference.mime_type ||
+            "image/jpeg",
         },
 
 
@@ -496,7 +498,7 @@ function createServer() {
 
             "",
 
-            `Garment: ${request.garment_reference.filename} — HERO / highest priority`,
+            `Garment: ${request.garment_reference.file_name} — HERO / highest priority`,
 
             `Model age: ${request.model_age}`,
 

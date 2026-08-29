@@ -185,9 +185,16 @@
           return;
         }
         fileName.textContent = file.name;
-        previewUrl = URL.createObjectURL(file);
-        preview.src = previewUrl;
-        previewWrap.style.display = 'block';
+        const reader = new FileReader();
+        reader.onload = () => {
+          preview.src = String(reader.result || '');
+          previewWrap.style.display = 'block';
+        };
+        reader.onerror = () => {
+          previewWrap.style.display = 'none';
+          preview.removeAttribute('src');
+        };
+        reader.readAsDataURL(file);
         updateFileState();
       });
 
@@ -205,21 +212,25 @@
         generate.disabled = true;
         try {
           setStatus('Uploading garment securely through ChatGPT…');
-          const uploaded = await bridge.uploadFile(file);
+          const uploaded = await bridge.uploadFile(file, { library: true });
           const fileId = uploaded?.fileId || uploaded?.file_id;
           if (!fileId) throw new Error('ChatGPT did not return a file ID.');
 
-          let downloadUrl = '';
-          if (typeof bridge.getFileDownloadUrl === 'function') {
-            const download = await bridge.getFileDownloadUrl({ fileId });
-            downloadUrl = download?.downloadUrl || download?.download_url || '';
+          if (typeof bridge.getFileDownloadUrl !== 'function') {
+            throw new Error('ChatGPT did not expose a file download URL bridge.');
+          }
+
+          const download = await bridge.getFileDownloadUrl({ fileId });
+          const downloadUrl = download?.downloadUrl || download?.download_url || '';
+          if (!downloadUrl) {
+            throw new Error('ChatGPT did not return a temporary garment download URL.');
           }
 
           const request = {
             garment_reference: {
               file_id: fileId,
               download_url: downloadUrl,
-              filename: file.name,
+              file_name: file.name,
               mime_type: file.type || 'image/jpeg'
             },
             occasion: root.querySelector('#occasion').value,
@@ -237,6 +248,19 @@
           if (result?.isError) throw new Error('The fashion request tool returned an error.');
 
           setStatus('Request submitted. Starting image generation…', 'ok');
+
+          if (typeof bridge.setWidgetState === 'function') {
+            bridge.setWidgetState({
+              modelContent: {
+                instruction: 'Use the uploaded garment image as the HERO and highest-priority visual reference for the submitted AC Fashion Image Studio request.',
+                request
+              },
+              privateContent: {
+                selectedFileName: file.name
+              },
+              imageIds: [fileId]
+            });
+          }
 
           if (typeof bridge.sendFollowUpMessage === 'function') {
             await bridge.sendFollowUpMessage({
