@@ -245,6 +245,9 @@ function createServer() {
       file_name:
         z.string().optional().default("garment-reference"),
 
+      filename:
+        z.string().optional(),
+
       mime_type:
         z.string().optional().default("image/jpeg"),
     });
@@ -405,6 +408,7 @@ function createServer() {
 
           file_name:
             input.garment_reference.file_name ||
+            input.garment_reference.filename ||
             "garment-reference",
 
           mime_type:
